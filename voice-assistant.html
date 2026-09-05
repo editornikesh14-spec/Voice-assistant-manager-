@@ -1,0 +1,1213 @@
+<!DOCTYPE html>
+<html lang="hi"><head>
+  <script type="module" src="/@vite/client"></script>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Remix My Closet - Final Step | 🎙️ Voice Assistant</title>
+    <meta property="og:title" content="Remix My Closet - Final Step | 🎙️ Voice Assistant">
+    <meta name="description" content="An interactive AI voice assistant supporting Hindi and English speech recognition, customizable wake words, and Gemini AI voice responses.">
+    <meta property="og:description" content="An interactive AI voice assistant supporting Hindi and English speech recognition, customizable wake words, and Gemini AI voice responses.">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+        }
+        body {
+            background: #0b0e14;
+            color: #eef2f8;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        .container {
+            background: #1a1f2b;
+            max-width: 680px;
+            width: 100%;
+            border-radius: 28px;
+            padding: 30px 28px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.7);
+            border: 1px solid #2d3546;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+        .header-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 12px;
+            border-bottom: 1px solid #242c3d;
+            padding-bottom: 18px;
+        }
+        h1 {
+            color: #eef2f8;
+            font-size: 24px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .badge-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .badge {
+            background: #2d9cdb;
+            padding: 4px 12px;
+            border-radius: 40px;
+            font-size: 13px;
+            font-weight: 600;
+            color: #fff;
+            letter-spacing: 0.3px;
+        }
+        .badge-server {
+            background: #27ae60;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .lang-select {
+            background: #131a24;
+            color: #c8d0e0;
+            border: 1px solid #2d3546;
+            border-radius: 10px;
+            padding: 4px 8px;
+            font-size: 13px;
+            cursor: pointer;
+            outline: none;
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+        label {
+            color: #a8b2c8;
+            font-size: 13px;
+            font-weight: 500;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .label-hint {
+            color: #74829c;
+            font-size: 12px;
+            font-weight: normal;
+        }
+        .input-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+        input[type="text"], input[type="password"] {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1px solid #2d3546;
+            border-radius: 14px;
+            background: #131a24;
+            color: #eef2f8;
+            font-size: 14px;
+            outline: none;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+        input:focus {
+            border-color: #2d9cdb;
+            box-shadow: 0 0 0 3px rgba(45,156,219,0.2);
+        }
+        .toggle-vis-btn {
+            position: absolute;
+            right: 12px;
+            background: transparent;
+            border: none;
+            color: #74829c;
+            cursor: pointer;
+            font-size: 13px;
+            padding: 4px;
+        }
+
+        .row {
+            display: flex;
+            gap: 12px;
+            margin-top: 4px;
+            flex-wrap: wrap;
+        }
+        .btn {
+            flex: 1;
+            padding: 13px 14px;
+            border: none;
+            border-radius: 14px;
+            font-weight: 600;
+            font-size: 15px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            min-width: 120px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+        .btn-start {
+            background: #2d9cdb;
+            color: #fff;
+        }
+        .btn-start:hover:not(:disabled) {
+            background: #2483b8;
+            transform: translateY(-1px);
+        }
+        .btn-stop {
+            background: #e74c3c;
+            color: #fff;
+        }
+        .btn-stop:hover:not(:disabled) {
+            background: #c0392b;
+            transform: translateY(-1px);
+        }
+        .btn-download {
+            background: #27ae60;
+            color: #fff;
+        }
+        .btn-download:hover {
+            background: #1e8449;
+            transform: translateY(-1px);
+        }
+
+        /* Status Visualizer */
+        .status-box {
+            padding: 14px 18px;
+            background: #131a24;
+            border-radius: 16px;
+            border-left: 4px solid #2d9cdb;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            color: #c8d0e0;
+            font-size: 14px;
+        }
+        .status-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-weight: 500;
+        }
+        .status-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #555;
+            flex-shrink: 0;
+            transition: 0.3s;
+        }
+        .status-dot.active {
+            background: #2ecc71;
+            box-shadow: 0 0 12px #2ecc71;
+            animation: pulse-dot 1.2s infinite;
+        }
+        .status-dot.sleeping {
+            background: #f1c40f;
+            box-shadow: 0 0 10px rgba(241,196,15,0.6);
+            animation: pulse-sleeping 2s infinite;
+        }
+        .status-dot.processing {
+            background: #3498db;
+            box-shadow: 0 0 12px #3498db;
+            animation: pulse-proc 0.8s infinite alternate;
+        }
+        .status-dot.speaking {
+            background: #9b59b6;
+            box-shadow: 0 0 12px #9b59b6;
+            animation: pulse-speaking 1s infinite alternate;
+        }
+
+        @keyframes pulse-dot {
+            0% { transform: scale(0.9); opacity: 0.8; }
+            50% { transform: scale(1.3); opacity: 1; }
+            100% { transform: scale(0.9); opacity: 0.8; }
+        }
+        @keyframes pulse-sleeping {
+            0% { opacity: 0.4; }
+            50% { opacity: 1; }
+            100% { opacity: 0.4; }
+        }
+        @keyframes pulse-proc {
+            from { transform: scale(0.95); opacity: 0.7; }
+            to { transform: scale(1.2); opacity: 1; }
+        }
+        @keyframes pulse-speaking {
+            from { transform: scale(0.9); }
+            to { transform: scale(1.35); }
+        }
+
+        /* Sound waves visualizer bar */
+        .waves-container {
+            display: flex;
+            align-items: center;
+            gap: 3px;
+            height: 18px;
+        }
+        .wave-bar {
+            width: 3px;
+            height: 4px;
+            background: #2d9cdb;
+            border-radius: 3px;
+            transition: height 0.15s ease;
+        }
+        .waves-animating .wave-bar:nth-child(1) { animation: wave 0.8s infinite ease-in-out 0.1s; }
+        .waves-animating .wave-bar:nth-child(2) { animation: wave 0.8s infinite ease-in-out 0.2s; }
+        .waves-animating .wave-bar:nth-child(3) { animation: wave 0.8s infinite ease-in-out 0.3s; }
+        .waves-animating .wave-bar:nth-child(4) { animation: wave 0.8s infinite ease-in-out 0.4s; }
+        .waves-animating .wave-bar:nth-child(5) { animation: wave 0.8s infinite ease-in-out 0.2s; }
+        @keyframes wave {
+            0%, 100% { height: 4px; }
+            50% { height: 18px; }
+        }
+
+        /* Sample Quick Prompts */
+        .sample-prompts {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-top: 2px;
+        }
+        .sample-chips {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        .chip {
+            background: #131a24;
+            border: 1px solid #2d3546;
+            border-radius: 20px;
+            padding: 6px 12px;
+            font-size: 12px;
+            color: #a8b2c8;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .chip:hover {
+            border-color: #2d9cdb;
+            color: #eef2f8;
+            background: #1e2838;
+        }
+
+        /* Conversation Log */
+        .log-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 4px;
+        }
+        .log-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: #a8b2c8;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .clear-btn {
+            background: transparent;
+            border: none;
+            color: #74829c;
+            font-size: 12px;
+            cursor: pointer;
+            text-decoration: underline;
+        }
+        .clear-btn:hover {
+            color: #eef2f8;
+        }
+        #log {
+            min-height: 180px;
+            max-height: 280px;
+            overflow-y: auto;
+            padding: 10px 6px 10px 0;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .msg {
+            padding: 12px 16px;
+            border-radius: 16px;
+            font-size: 14px;
+            line-height: 1.5;
+            animation: fadeIn 0.3s ease;
+            position: relative;
+            word-break: break-word;
+        }
+        .msg-user {
+            background: #2d3546;
+            color: #eef2f8;
+            border-bottom-right-radius: 4px;
+            align-self: flex-end;
+            max-width: 85%;
+        }
+        .msg-assistant {
+            background: #17212e;
+            color: #dbe3f0;
+            border-bottom-left-radius: 4px;
+            border-left: 3px solid #2d9cdb;
+            align-self: flex-start;
+            max-width: 90%;
+        }
+        .msg-assistant strong {
+            color: #2d9cdb;
+            margin-right: 6px;
+        }
+        .msg-actions {
+            margin-top: 6px;
+            display: flex;
+            gap: 8px;
+        }
+        .action-chip {
+            background: #101620;
+            border: 1px solid #283446;
+            border-radius: 8px;
+            padding: 2px 8px;
+            font-size: 11px;
+            color: #8c9bb4;
+            cursor: pointer;
+            transition: 0.15s;
+        }
+        .action-chip:hover {
+            color: #eef2f8;
+            border-color: #2d9cdb;
+        }
+        .empty-log {
+            color: #5a667a;
+            text-align: center;
+            padding: 40px 0;
+            font-style: italic;
+            font-size: 14px;
+        }
+
+        /* Type manual command row */
+        .type-row {
+            display: flex;
+            gap: 8px;
+            margin-top: 2px;
+        }
+        .type-input {
+            flex: 1;
+            padding: 10px 14px;
+            background: #131a24;
+            border: 1px solid #2d3546;
+            border-radius: 12px;
+            color: #eef2f8;
+            font-size: 14px;
+            outline: none;
+        }
+        .type-input:focus {
+            border-color: #2d9cdb;
+        }
+        .type-send-btn {
+            padding: 10px 16px;
+            background: #242e40;
+            border: 1px solid #36445c;
+            border-radius: 12px;
+            color: #eef2f8;
+            font-weight: 600;
+            font-size: 14px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .type-send-btn:hover {
+            background: #2d9cdb;
+            border-color: #2d9cdb;
+        }
+
+        /* Settings collapsible */
+        .settings-details {
+            border-top: 1px solid #242c3d;
+            padding-top: 12px;
+            margin-top: 4px;
+        }
+        .settings-summary {
+            font-size: 12px;
+            color: #74829c;
+            cursor: pointer;
+            user-select: none;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .settings-summary:hover {
+            color: #a8b2c8;
+        }
+        .settings-body {
+            margin-top: 10px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+        @media (max-width: 500px) {
+            .settings-body {
+                grid-template-columns: 1fr;
+            }
+        }
+        .settings-item {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+        .settings-item label {
+            font-size: 11px;
+        }
+        .range-slider {
+            accent-color: #2d9cdb;
+            cursor: pointer;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(6px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        ::-webkit-scrollbar {
+            width: 5px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #131a24;
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #2d3546;
+            border-radius: 10px;
+        }
+        .footnote {
+            margin-top: 4px;
+            font-size: 12px;
+            color: #5a667a;
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+    </style>
+<script src="/_aistudio-iframe.js?v=2f1c016a"></script><script src="https://cdn.jsdelivr.net/npm/html2canvas-pro@2.0.4"></script><style>.aistudio-hover-highlight { box-shadow: inset 0 0 0 0.5px white, inset 0 0 0 1.5px rgba(128,128,128,0.6) !important; }.aistudio-active-highlight { outline: 2px solid #87a9ff !important; outline-offset: -2px !important; box-shadow: 0 0 0 0.5px rgba(0,0,0,0.3), inset 0 0 0 0.5px rgba(0,0,0,0.3) !important; }.aistudio-generating-blur { filter: blur(5px) grayscale(100%) brightness(28%) !important; transition: filter 0.3s ease; }#aistudio-focus-mode-tag { position: absolute; display: none; align-items: center; gap: 4px; background: #87a9ff; border-radius: 12px; z-index: 10000; padding: 8px; color: #32302c; font-family: Inter, sans-serif; font-size: 14px; font-style: normal; font-weight: 500; line-height: 21px; pointer-events: none; }#aistudio-hover-mode-tag { position: absolute; display: none; align-items: center; gap: 4px; background: rgba(128,128,128,0.6); border-radius: 12px; z-index: 10000; padding: 8px; color: white; font-family: Inter, sans-serif; font-size: 14px; font-style: normal; font-weight: 500; line-height: 21px; pointer-events: none; }.aistudio-img-icon { display: none; vertical-align: middle; pointer-events: auto; cursor: pointer; }.aistudio-img-icon.visible { display: inline-flex; }#aistudio-focus-mode-tag .aistudio-img-icon { position: relative; width: 26px; height: 26px; background: #32302c; border-radius: 6px; margin: -4px -4px -4px 0; }#aistudio-focus-mode-tag .aistudio-img-icon::before { content: ""; position: absolute; top: 4px; left: 4px; width: 18px; height: 18px; background-color: white; -webkit-mask-image: url("https://fonts.gstatic.com/s/i/short-term/release/googlesymbols/edit_fix_auto/default/24px.svg"); -webkit-mask-size: contain; -webkit-mask-repeat: no-repeat; mask-image: url("https://fonts.gstatic.com/s/i/short-term/release/googlesymbols/edit_fix_auto/default/24px.svg"); mask-size: contain; mask-repeat: no-repeat; }#aistudio-hover-mode-tag .aistudio-img-icon { position: relative; width: 18px; height: 18px; margin-left: 4px; }#aistudio-hover-mode-tag .aistudio-img-icon::before { content: ""; position: absolute; top: 0; left: 0; width: 18px; height: 18px; background-color: white; -webkit-mask-image: url("https://fonts.gstatic.com/s/i/short-term/release/googlesymbols/edit_fix_auto/default/24px.svg"); -webkit-mask-size: contain; -webkit-mask-repeat: no-repeat; mask-image: url("https://fonts.gstatic.com/s/i/short-term/release/googlesymbols/edit_fix_auto/default/24px.svg"); mask-size: contain; mask-repeat: no-repeat; }#aistudio-focus-mode-tag .aistudio-img-icon:hover, #aistudio-hover-mode-tag .aistudio-img-icon:hover { background: #424242 !important; }#aistudio-focus-mode-tag .aistudio-img-icon:active, #aistudio-hover-mode-tag .aistudio-img-icon:active { background: #393f51 !important; }</style></head>
+<body>
+<div class="container" id="assistantApp">
+    <!-- Header -->
+    <div class="header-row">
+        <h1 id="appTitle">🎙️ Voice Assistant</h1>
+        <div class="badge-group">
+            <span class="badge" id="langBadge">Hindi / Hinglish</span>
+            <span class="badge badge-server" id="serverKeyBadge" style="display: inline-flex;">⚡ Connected</span>
+            <select class="lang-select" id="langSelect" title="Select Voice Recognition Language">
+                <option value="hi-IN" selected="">🇮🇳 Hindi (hi-IN)</option>
+                <option value="en-IN">🇮🇳 English (en-IN)</option>
+                <option value="en-US">🇺🇸 English (en-US)</option>
+            </select>
+        </div>
+    </div>
+
+    <!-- API Key Input -->
+    <div class="input-group" id="apiKeyGroup">
+        <label for="apiKey">
+            <span>🔑 Gemini API Key <span class="label-hint">(Auto-connected in AI Studio or enter key)</span></span>
+            <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noopener noreferrer" style="color: #2d9cdb; text-decoration: none; font-size: 12px;">Get free key ↗</a>
+        </label>
+        <div class="input-wrapper">
+            <input type="password" id="apiKey" placeholder="✓ Server Gemini Key connected (or paste custom key)" autocomplete="off" value="curl &quot;https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent&quot; \   -H 'Content-Type: application/json' \   -H 'X-goog-api-key: AQ.Ab8RN6Lv7ECkmZVgkJ1IA6kaOhN2kx7QRZvghnWS5VlGGF9NFg' \   -X POST \   -d '{     &quot;contents&quot;: [       {         &quot;parts&quot;: [           {             &quot;text&quot;: &quot;Explain how AI works in a few words&quot;           }         ]       }     ]   }'">
+            <button type="button" class="toggle-vis-btn" id="toggleApiKeyBtn" title="Toggle visibility">👁️</button>
+        </div>
+    </div>
+
+    <!-- Wake Word Input -->
+    <div class="input-group">
+        <label for="wakeWord">
+            <span>🔊 Wake Word <span class="label-hint">(Jo bolne pe assistant active ho)</span></span>
+        </label>
+        <input type="text" id="wakeWord" value="jarvis" placeholder="e.g. jarvis, alexa, computer, namaste">
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="row">
+        <button class="btn btn-start" id="startBtn">
+            <span>▶️</span> Start Listening
+        </button>
+        <button class="btn btn-stop" id="stopBtn" disabled="">
+            <span>⏹️</span> Stop
+        </button>
+        <button class="btn btn-download" id="downloadBtn" title="Download standalone HTML file to run anywhere">
+            <span>⬇️</span> Download HTML
+        </button>
+    </div>
+
+    <!-- Status Box -->
+    <div class="status-box" id="statusContainer">
+        <div class="status-left">
+            <span class="status-dot" id="statusDot"></span>
+            <span id="statusText">⏹️ Stopped</span>
+        </div>
+        <div class="waves-container" id="wavesContainer">
+            <div class="wave-bar"></div>
+            <div class="wave-bar"></div>
+            <div class="wave-bar"></div>
+            <div class="wave-bar"></div>
+            <div class="wave-bar"></div>
+        </div>
+    </div>
+
+    <!-- Quick Prompts / Testing Chips -->
+    <div class="sample-prompts">
+        <label style="font-size: 12px; color: #74829c;">Quick Test Suggestions (Click to trigger):</label>
+        <div class="sample-chips" id="sampleChips">
+            <button type="button" class="chip" data-prompt="Namaste Jarvis, kaise ho aap?">👋 Namaste, kaise ho?</button>
+            <button type="button" class="chip" data-prompt="Jarvis, aaj ka mausam kaisa hai?">🌤️ Aaj ka mausam?</button>
+            <button type="button" class="chip" data-prompt="Jarvis, ek mazedaar chutkula sunao!">😂 Chutkula sunao</button>
+            <button type="button" class="chip" data-prompt="Jarvis, tell me an interesting science fact.">🔬 Science Fact</button>
+            <button type="button" class="chip" data-prompt="Jarvis, Bharat ke baare mein kuch achhi baatein batao.">🇮🇳 Bharat ke baare mein</button>
+        </div>
+    </div>
+
+    <!-- Conversation Log -->
+    <div class="log-header">
+        <span class="log-title">💬 Conversation History</span>
+        <button type="button" class="clear-btn" id="clearLogBtn">Clear Log</button>
+    </div>
+    <div id="log">
+        
+    <div class="msg msg-assistant">
+                <div><strong>🤖 Assistant:</strong> <span>Namaste! Main taiyaar hu. "jarvis" bol kar mujhse baat karein.</span></div>
+                <div class="msg-actions">
+                    <button class="action-chip" onclick="speakAgain('Namaste!%20Main%20taiyaar%20hu.%20%22jarvis%22%20bol%20kar%20mujhse%20baat%20karein.')">🔊 Speak again</button>
+                    <button class="action-chip" onclick="copyText('Namaste!%20Main%20taiyaar%20hu.%20%22jarvis%22%20bol%20kar%20mujhse%20baat%20karein.')">📋 Copy</button>
+                </div>
+            </div></div>
+
+    <!-- Manual Type Box (for silent environments or test without mic) -->
+    <div class="type-row">
+        <input type="text" class="type-input" id="textCommandInput" placeholder="Type a command manually or test without mic...">
+        <button type="button" class="type-send-btn" id="textSendBtn">Send ➔</button>
+    </div>
+
+    <!-- Collapsible Voice & Assistant Settings -->
+    <details class="settings-details">
+        <summary class="settings-summary">⚙️ Voice Synthesis &amp; Advanced Audio Settings</summary>
+        <div class="settings-body">
+            <div class="settings-item">
+                <label for="voiceRate">Speech Rate: <span id="rateVal">1.0x</span></label>
+                <input type="range" class="range-slider" id="voiceRate" min="0.7" max="1.5" step="0.1" value="1.0">
+            </div>
+            <div class="settings-item">
+                <label for="voicePitch">Speech Pitch: <span id="pitchVal">1.0</span></label>
+                <input type="range" class="range-slider" id="voicePitch" min="0.7" max="1.4" step="0.1" value="1.0">
+            </div>
+            <div class="settings-item" style="grid-column: 1 / -1;">
+                <label for="voiceSelect">TTS Voice:</label>
+                <select class="lang-select" id="voiceSelect" style="width: 100%;"><option value="">Default Browser Voice</option><option value="0">⭐ Assamese India (as_IN) — DEFAULT</option><option value="1">Bulgarian Bulgaria (bg_BG)</option><option value="2">Bangla Bangladesh (bn_BD)</option><option value="3">⭐ Bangla India (bn_IN)</option><option value="4">⭐ Bodo India (brx_IN)</option><option value="5">Bosnian Bosnia &amp; Herzegovina (bs_BA_#Cyrl)</option><option value="6">Bosnian Bosnia &amp; Herzegovina (bs_BA_#Latn)</option><option value="7">Catalan Spain (ca_ES)</option><option value="8">Czech Czechia (cs_CZ)</option><option value="9">Welsh United Kingdom (cy_GB)</option><option value="10">Danish Denmark (da_DK)</option><option value="11">German Germany (de_DE)</option><option value="12">⭐ Dogri India (doi_IN)</option><option value="13">Greek Greece (el_GR)</option><option value="14">English Australia (en_AU)</option><option value="15">English United Kingdom (en_GB)</option><option value="16">⭐ English India (en_IN)</option><option value="17">English Nigeria (en_NG)</option><option value="18">English United States (en_US)</option><option value="19">Spanish Spain (es_ES)</option><option value="20">Spanish United States (es_US)</option><option value="21">Estonian Estonia (et_EE)</option><option value="22">Finnish Finland (fi_FI)</option><option value="23">Filipino Philippines (fil_PH)</option><option value="24">French Canada (fr_CA)</option><option value="25">French France (fr_FR)</option><option value="26">⭐ Gujarati India (gu_IN)</option><option value="27">Hebrew Israel (iw_IL)</option><option value="28">⭐ Hindi India (hi_IN)</option><option value="29">Croatian Croatia (hr_HR)</option><option value="30">Hungarian Hungary (hu_HU)</option><option value="31">Indonesian Indonesia (in_ID)</option><option value="32">Icelandic Iceland (is_IS)</option><option value="33">Italian Italy (it_IT)</option><option value="34">Japanese Japan (ja_JP)</option><option value="35">Javanese Indonesia (jv_ID)</option><option value="36">Khmer Cambodia (km_KH)</option><option value="37">⭐ Kannada India (kn_IN)</option><option value="38">Korean South Korea (ko_KR)</option><option value="39">⭐ Konkani India (kok_IN)</option><option value="40">⭐ Kashmiri India (ks_IN_#Arab)</option><option value="41">Lithuanian Lithuania (lt_LT)</option><option value="42">Latvian Latvia (lv_LV)</option><option value="43">⭐ Maithili India (mai_IN)</option><option value="44">⭐ Malayalam India (ml_IN)</option><option value="45">⭐ Manipuri India (mni_IN_#Beng)</option><option value="46">⭐ Marathi India (mr_IN)</option><option value="47">Malay Malaysia (ms_MY)</option><option value="48">Norwegian Bokmål Norway (nb_NO)</option><option value="49">Nepali Nepal (ne_NP)</option><option value="50">Dutch Belgium (nl_BE)</option><option value="51">Dutch Netherlands (nl_NL)</option><option value="52">⭐ Odia India (or_IN)</option><option value="53">⭐ Punjabi India (pa_IN_#Guru)</option><option value="54">Polish Poland (pl_PL)</option><option value="55">Portuguese Brazil (pt_BR)</option><option value="56">Portuguese Portugal (pt_PT)</option><option value="57">Romanian Romania (ro_RO)</option><option value="58">Russian Russia (ru_RU)</option><option value="59">⭐ Sanskrit India (sa_IN)</option><option value="60">⭐ Santali India (sat_IN_#Olck)</option><option value="61">⭐ Sindhi India (sd_IN_#Deva)</option><option value="62">Sinhala Sri Lanka (si_LK)</option><option value="63">Slovak Slovakia (sk_SK)</option><option value="64">Slovenian Slovenia (sl_SI)</option><option value="65">Albanian Albania (sq_AL)</option><option value="66">Serbian Serbia (sr_RS_#Cyrl)</option><option value="67">Serbian Serbia (sr_RS_#Latn)</option><option value="68">Sundanese Indonesia (su_ID_#Latn)</option><option value="69">Swedish Sweden (sv_SE)</option><option value="70">Swahili Kenya (sw_KE)</option><option value="71">⭐ Tamil India (ta_IN)</option><option value="72">⭐ Telugu India (te_IN)</option><option value="73">Thai Thailand (th_TH)</option><option value="74">Turkish Turkey (tr_TR)</option><option value="75">Ukrainian Ukraine (uk_UA)</option><option value="76">⭐ Urdu India (ur_IN)</option><option value="77">Urdu Pakistan (ur_PK)</option><option value="78">Vietnamese Vietnam (vi_VN)</option><option value="79">Cantonese Hong Kong (yue_HK_#Hant)</option><option value="80">Chinese China (zh_CN_#Hans)</option><option value="81">Chinese Hong Kong (zh_HK_#Hans)</option><option value="82">Chinese Macao (zh_MO_#Hans)</option><option value="83">Chinese Singapore (zh_SG_#Hans)</option><option value="84">Chinese Hong Kong (zh_HK_#Hant)</option><option value="85">Chinese Macao (zh_MO_#Hant)</option><option value="86">Chinese Taiwan (zh_TW_#Hant)</option></select>
+            </div>
+        </div>
+    </details>
+
+    <div class="footnote">
+        <span>🔹 Chrome / Edge recommended</span>
+        <span>•</span>
+        <span>🎙️ Web Speech API</span>
+        <span>•</span>
+        <span>🤖 Powered by Google Gemini</span>
+    </div>
+</div>
+
+<script>
+    // ---------- DOM Elements ----------
+    const apiKeyInput = document.getElementById('apiKey');
+    const toggleApiKeyBtn = document.getElementById('toggleApiKeyBtn');
+    const serverKeyBadge = document.getElementById('serverKeyBadge');
+    const wakeWordInput = document.getElementById('wakeWord');
+    const startBtn = document.getElementById('startBtn');
+    const stopBtn = document.getElementById('stopBtn');
+    const downloadBtn = document.getElementById('downloadBtn');
+    const statusText = document.getElementById('statusText');
+    const statusDot = document.getElementById('statusDot');
+    const wavesContainer = document.getElementById('wavesContainer');
+    const logDiv = document.getElementById('log');
+    const clearLogBtn = document.getElementById('clearLogBtn');
+    const langSelect = document.getElementById('langSelect');
+    const textCommandInput = document.getElementById('textCommandInput');
+    const textSendBtn = document.getElementById('textSendBtn');
+    const sampleChips = document.getElementById('sampleChips');
+    const voiceRate = document.getElementById('voiceRate');
+    const voicePitch = document.getElementById('voicePitch');
+    const rateVal = document.getElementById('rateVal');
+    const pitchVal = document.getElementById('pitchVal');
+    const voiceSelect = document.getElementById('voiceSelect');
+
+    let recognition = null;
+    let isRunning = false;
+    let state = 'sleeping'; // 'sleeping' | 'listening' | 'processing' | 'speaking'
+    let wakeWord = 'jarvis';
+    let availableVoices = [];
+    let audioCtx = null;
+    let hasServerKey = false;
+
+    // ---------- Speech APIs ----------
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    const synth = window.speechSynthesis;
+
+    // Check server key availability on load
+    async function checkServerStatus() {
+        try {
+            const res = await fetch('/api/status');
+            if (res.ok) {
+                const data = await res.json();
+                if (data.hasApiKey) {
+                    hasServerKey = true;
+                    if (serverKeyBadge) serverKeyBadge.style.display = 'inline-flex';
+                    apiKeyInput.placeholder = '✓ Server Gemini Key connected (or paste custom key)';
+                }
+            }
+        } catch (e) {
+            // Offline or standalone file mode
+        }
+    }
+    checkServerStatus();
+
+    // Populate Speech Synthesis Voices
+    function populateVoices() {
+        if (!synth) return;
+        availableVoices = synth.getVoices();
+        voiceSelect.innerHTML = '<option value="">Default Browser Voice</option>';
+
+        // Prioritize Hindi and Indian English
+        availableVoices.forEach((voice, index) => {
+            const opt = document.createElement('option');
+            opt.value = index;
+            opt.textContent = `${voice.name} (${voice.lang})${voice.default ? ' — DEFAULT' : ''}`;
+            if (voice.lang.includes('hi') || voice.lang.includes('IN')) {
+                opt.textContent = `⭐ ${opt.textContent}`;
+            }
+            voiceSelect.appendChild(opt);
+        });
+
+        // Select a Hindi or Indian voice if available
+        const preferredIdx = availableVoices.findIndex(v => v.lang.includes('hi-IN') || v.lang.includes('en-IN'));
+        if (preferredIdx >= 0) {
+            voiceSelect.value = preferredIdx;
+        }
+    }
+    if (synth) {
+        populateVoices();
+        if (synth.onvoiceschanged !== undefined) {
+            synth.onvoiceschanged = populateVoices;
+        }
+    }
+
+    // ---------- Sound Feedback (Web Audio API) ----------
+    function playChime(type) {
+        try {
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            }
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+            const now = audioCtx.currentTime;
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+
+            if (type === 'wake') {
+                // Two-tone rising chime: "Ding-ding"
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(587.33, now); // D5
+                osc.frequency.exponentialRampToValueAtTime(880, now + 0.12); // A5
+                gain.gain.setValueAtTime(0.15, now);
+                gain.gain.exponentialRampToValueAtTime(0.001, now + 0.28);
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                osc.start(now);
+                osc.stop(now + 0.3);
+            } else if (type === 'beep') {
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(659.25, now); // E5
+                gain.gain.setValueAtTime(0.12, now);
+                gain.gain.exponentialRampToValueAtTime(0.001, now + 0.15);
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                osc.start(now);
+                osc.stop(now + 0.16);
+            }
+        } catch (e) {
+            // Silently ignore audio context autoplay policy blocks
+        }
+    }
+
+    // ---------- Text to Speech ----------
+    function speak(text) {
+        if (!synth) {
+            addLog('assistant', text);
+            return;
+        }
+        synth.cancel();
+
+        const utter = new SpeechSynthesisUtterance(text);
+        const selectedIdx = voiceSelect.value;
+        if (selectedIdx !== '' && availableVoices[selectedIdx]) {
+            utter.voice = availableVoices[selectedIdx];
+        }
+        utter.lang = langSelect.value || 'hi-IN';
+        utter.rate = parseFloat(voiceRate.value) || 1.0;
+        utter.pitch = parseFloat(voicePitch.value) || 1.0;
+
+        utter.onstart = () => {
+            state = 'speaking';
+            setStatus('🗣️ Bol raha hu...', 'speaking');
+            setWaves(true);
+        };
+
+        utter.onend = () => {
+            setWaves(false);
+            if (isRunning) {
+                state = 'sleeping';
+                setStatus(`🎤 Sun raha hu... ("${wakeWord}" bolo)`, 'sleeping');
+            } else {
+                state = 'idle';
+                setStatus('⏹️ Stopped', '');
+            }
+        };
+
+        utter.onerror = () => {
+            setWaves(false);
+            if (isRunning) {
+                state = 'sleeping';
+                setStatus(`🎤 Sun raha hu... ("${wakeWord}" bolo)`, 'sleeping');
+            }
+        };
+
+        addLog('assistant', text);
+        synth.speak(utter);
+    }
+
+    // ---------- UI Log Management ----------
+    function addLog(type, text) {
+        const empty = logDiv.querySelector('.empty-log');
+        if (empty) empty.remove();
+
+        const div = document.createElement('div');
+        div.className = `msg msg-${type}`;
+
+        if (type === 'assistant') {
+            div.innerHTML = `
+                <div><strong>🤖 Assistant:</strong> <span>${escapeHtml(text)}</span></div>
+                <div class="msg-actions">
+                    <button class="action-chip" onclick="speakAgain('${encodeURIComponent(text)}')">🔊 Speak again</button>
+                    <button class="action-chip" onclick="copyText('${encodeURIComponent(text)}')">📋 Copy</button>
+                </div>
+            `;
+        } else {
+            div.innerHTML = `<div><strong>🧑 You:</strong> <span>${escapeHtml(text)}</span></div>`;
+        }
+
+        logDiv.appendChild(div);
+        logDiv.scrollTop = logDiv.scrollHeight;
+    }
+
+    window.speakAgain = function(encodedText) {
+        const text = decodeURIComponent(encodedText);
+        speak(text);
+    };
+
+    window.copyText = function(encodedText) {
+        const text = decodeURIComponent(encodedText);
+        navigator.clipboard.writeText(text).then(() => {
+            setStatus('📋 Copied to clipboard!', 'active');
+            setTimeout(() => {
+                if (isRunning) setStatus(`🎤 Sun raha hu... ("${wakeWord}" bolo)`, 'sleeping');
+                else setStatus('⏹️ Stopped', '');
+            }, 1200);
+        });
+    };
+
+    function escapeHtml(str) {
+        return str
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#039;');
+    }
+
+    function setStatus(text, dotState) {
+        statusText.textContent = text;
+        statusDot.className = 'status-dot';
+        if (dotState) {
+            statusDot.classList.add(dotState);
+        }
+    }
+
+    function setWaves(active) {
+        if (active) {
+            wavesContainer.classList.add('waves-animating');
+        } else {
+            wavesContainer.classList.remove('waves-animating');
+        }
+    }
+
+    // ---------- Gemini AI Request Engine ----------
+    async function askGemini(prompt) {
+        const userKey = apiKeyInput.value.trim();
+
+        // 1. Try server-side proxy route first
+        try {
+            const serverRes = await fetch('/api/gemini', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    prompt: prompt,
+                    apiKey: userKey || undefined
+                })
+            });
+
+            if (serverRes.ok) {
+                const data = await serverRes.json();
+                if (data.text) return data.text;
+            }
+        } catch (serverErr) {
+            // Server proxy unavailable (e.g. running from downloaded static file)
+        }
+
+        // 2. Direct client-side Gemini fallback (works for downloaded HTML or direct key)
+        const activeKey = userKey;
+        if (!activeKey) {
+            speak('Kripya pehle Gemini API key daaliye ya configure kijiye.');
+            return null;
+        }
+
+        try {
+            const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent?key=${encodeURIComponent(activeKey)}`;
+            const res = await fetch(url, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    contents: [{ parts: [{ text: prompt }] }],
+                    systemInstruction: {
+                        parts: [{
+                            text: 'You are Jarvis, a smart, polite, and helpful AI voice assistant. Respond in conversational Hindi / Hinglish or English based on the language of the user. Keep responses clear, polite, and brief (1 to 3 sentences) so they sound natural when spoken aloud via text-to-speech. Avoid markdown symbols like asterisks, bullet lists, or code blocks unless requested.'
+                        }]
+                    }
+                })
+            });
+
+            if (!res.ok) {
+                const errData = await res.text();
+                throw new Error(`API error ${res.status}: ${errData}`);
+            }
+
+            const data = await res.json();
+            const text = data?.candidates?.[0]?.content?.parts?.[0]?.text;
+            if (!text) throw new Error('Empty response from Gemini');
+            return text;
+        } catch (err) {
+            console.error('Gemini error:', err);
+            return `Maaf kijiye, error aaya: ${err.message || 'Check your API key.'}`;
+        }
+    }
+
+    // ---------- Speech Recognition Logic ----------
+    function initRecognition() {
+        if (!SpeechRecognition) {
+            alert('❌ Aapka browser Speech Recognition support nahi karta. Kripya Google Chrome ya Microsoft Edge browser use karein.');
+            return false;
+        }
+
+        recognition = new SpeechRecognition();
+        recognition.lang = langSelect.value || 'hi-IN';
+        recognition.continuous = true;
+        recognition.interimResults = true;
+        recognition.maxAlternatives = 1;
+
+        recognition.onstart = () => {
+            isRunning = true;
+            startBtn.disabled = true;
+            stopBtn.disabled = false;
+            state = 'sleeping';
+            setStatus(`🎤 Sun raha hu... ("${wakeWord}" bolo)`, 'sleeping');
+            setWaves(false);
+        };
+
+        recognition.onerror = (e) => {
+            if (e.error === 'not-allowed') {
+                setStatus('❌ Microphone permission denied', '');
+                alert('Microphone permission block ho gaya hai. Browser settings mein mic allow karein.');
+                stopAssistant();
+            } else if (e.error === 'no-speech') {
+                // Background silence, keep going
+            } else {
+                console.warn('Recognition warning:', e.error);
+            }
+        };
+
+        recognition.onend = () => {
+            if (isRunning) {
+                try {
+                    recognition.lang = langSelect.value || 'hi-IN';
+                    recognition.start();
+                } catch (err) {
+                    setTimeout(() => {
+                        if (isRunning) {
+                            try { recognition.start(); } catch (e) {}
+                        }
+                    }, 400);
+                }
+            } else {
+                setStatus('⏹️ Stopped', '');
+                startBtn.disabled = false;
+                stopBtn.disabled = true;
+                setWaves(false);
+            }
+        };
+
+        recognition.onresult = async (event) => {
+            let final = '';
+            let interim = '';
+
+            for (let i = event.resultIndex; i < event.results.length; i++) {
+                const result = event.results[i];
+                const transcript = result[0].transcript.toLowerCase().trim();
+                if (result.isFinal) {
+                    final += transcript + ' ';
+                } else {
+                    interim += transcript + ' ';
+                }
+            }
+
+            if (final.trim() !== '') {
+                await processCommand(final.trim());
+            }
+        };
+
+        return true;
+    }
+
+    // Process spoken text against Wake Word and state
+    async function processCommand(text) {
+        const ww = wakeWordInput.value.trim().toLowerCase() || 'jarvis';
+
+        if (state === 'sleeping') {
+            if (text.includes(ww)) {
+                playChime('wake');
+                let idx = text.indexOf(ww);
+                let command = text.substring(idx + ww.length).trim();
+
+                if (command.length > 1) {
+                    // Wake word + command in one sentence
+                    state = 'processing';
+                    setStatus('🧠 Soch raha hu...', 'processing');
+                    setWaves(false);
+                    addLog('user', command);
+                    const response = await askGemini(command);
+                    if (response) speak(response);
+                } else {
+                    // Just the wake word
+                    state = 'listening';
+                    setStatus('👂 Sun raha hu... boliye!', 'active');
+                    setWaves(true);
+                    playChime('beep');
+                    speak('Ji, boliye?');
+                }
+            }
+        } else if (state === 'listening') {
+            state = 'processing';
+            setStatus('🧠 Soch raha hu...', 'processing');
+            setWaves(false);
+            addLog('user', text);
+            const response = await askGemini(text);
+            if (response) speak(response);
+        }
+    }
+
+    // Trigger manual command (via chip or text input)
+    async function executeManualCommand(commandText) {
+        if (!commandText || !commandText.trim()) return;
+        addLog('user', commandText);
+        state = 'processing';
+        setStatus('🧠 Soch raha hu...', 'processing');
+        const response = await askGemini(commandText);
+        if (response) {
+            speak(response);
+        } else {
+            if (isRunning) {
+                state = 'sleeping';
+                setStatus(`🎤 Sun raha hu... ("${wakeWord}" bolo)`, 'sleeping');
+            } else {
+                state = 'idle';
+                setStatus('⏹️ Stopped', '');
+            }
+        }
+    }
+
+    // ---------- Start / Stop Controls ----------
+    function startAssistant() {
+        const key = apiKeyInput.value.trim();
+        if (!key && !hasServerKey) {
+            const proceed = confirm('Aapne Gemini API key enter nahi ki hai. Kya aap pehle API key enter karna chahte hain?');
+            if (proceed) {
+                apiKeyInput.focus();
+                return;
+            }
+        }
+
+        if (!SpeechRecognition) {
+            alert('❌ Aapka browser Speech Recognition support nahi karta. Chrome ya Edge use karein.');
+            return;
+        }
+
+        wakeWord = wakeWordInput.value.trim().toLowerCase() || 'jarvis';
+
+        if (!recognition) {
+            if (!initRecognition()) return;
+        } else {
+            recognition.lang = langSelect.value || 'hi-IN';
+        }
+
+        try {
+            recognition.start();
+        } catch (e) {
+            try {
+                recognition.stop();
+                setTimeout(() => {
+                    try { recognition.start(); } catch (err) {}
+                }, 300);
+            } catch (err) {
+                console.error(err);
+            }
+        }
+
+        const empty = logDiv.querySelector('.empty-log');
+        if (empty) empty.remove();
+        addLog('assistant', `Namaste! Main taiyaar hu. "${wakeWord}" bol kar mujhse baat karein.`);
+        playChime('wake');
+    }
+
+    function stopAssistant() {
+        isRunning = false;
+        if (recognition) {
+            try { recognition.stop(); } catch (e) {}
+        }
+        state = 'idle';
+        setStatus('⏹️ Stopped', '');
+        startBtn.disabled = false;
+        stopBtn.disabled = true;
+        setWaves(false);
+        if (synth) synth.cancel();
+    }
+
+    // ---------- Event Listeners ----------
+    startBtn.addEventListener('click', startAssistant);
+    stopBtn.addEventListener('click', stopAssistant);
+
+    wakeWordInput.addEventListener('change', function() {
+        wakeWord = this.value.trim().toLowerCase() || 'jarvis';
+        if (state === 'sleeping' && isRunning) {
+            setStatus(`🎤 Sun raha hu... ("${wakeWord}" bolo)`, 'sleeping');
+        }
+    });
+
+    langSelect.addEventListener('change', function() {
+        if (recognition) {
+            recognition.lang = this.value;
+        }
+    });
+
+    toggleApiKeyBtn.addEventListener('click', function() {
+        if (apiKeyInput.type === 'password') {
+            apiKeyInput.type = 'text';
+            toggleApiKeyBtn.textContent = '🙈';
+        } else {
+            apiKeyInput.type = 'password';
+            toggleApiKeyBtn.textContent = '👁️';
+        }
+    });
+
+    clearLogBtn.addEventListener('click', function() {
+        logDiv.innerHTML = '<div class="empty-log">💬 Conversation will appear here. Say your wake word or click Start!</div>';
+        if (synth) synth.cancel();
+    });
+
+    // Slider controls
+    voiceRate.addEventListener('input', function() {
+        rateVal.textContent = `${this.value}x`;
+    });
+    voicePitch.addEventListener('input', function() {
+        pitchVal.textContent = this.value;
+    });
+
+    // Manual input sending
+    textSendBtn.addEventListener('click', () => {
+        const text = textCommandInput.value.trim();
+        if (text) {
+            executeManualCommand(text);
+            textCommandInput.value = '';
+        }
+    });
+    textCommandInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+            const text = textCommandInput.value.trim();
+            if (text) {
+                executeManualCommand(text);
+                textCommandInput.value = '';
+            }
+        }
+    });
+
+    // Sample chips
+    sampleChips.addEventListener('click', (e) => {
+        const chip = e.target.closest('.chip');
+        if (chip && chip.dataset.prompt) {
+            executeManualCommand(chip.dataset.prompt);
+        }
+    });
+
+    // Download standalone HTML file
+    downloadBtn.addEventListener('click', function() {
+        // Clone document to prepare standalone file
+        const docClone = document.documentElement.cloneNode(true);
+
+        // Keep current API key if entered so the offline user has it ready
+        const cloneKeyInput = docClone.querySelector('#apiKey');
+        if (cloneKeyInput && apiKeyInput.value) {
+            cloneKeyInput.setAttribute('value', apiKeyInput.value);
+        }
+
+        const cloneWakeInput = docClone.querySelector('#wakeWord');
+        if (cloneWakeInput && wakeWordInput.value) {
+            cloneWakeInput.setAttribute('value', wakeWordInput.value);
+        }
+
+        const htmlContent = '<!DOCTYPE html>\n' + docClone.outerHTML;
+        const blob = new Blob([htmlContent], { type: 'text/html;charset=utf-8' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'voice-assistant.html';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+    });
+
+    // Cleanup when leaving
+    window.addEventListener('beforeunload', function() {
+        if (recognition) {
+            try { recognition.stop(); } catch (e) {}
+        }
+        if (synth) synth.cancel();
+    });
+</script>
+
+
+</body></html>
